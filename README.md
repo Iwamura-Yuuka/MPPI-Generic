@@ -33,6 +33,7 @@ MPPI-Generic relies on the following:
 2. Install all the other prerequisites through `apt-get`:
 ```bash
 sudo apt-get install libeigen3-dev git git-lfs cmake gcc
+sudo apt install zlib1g-dev
 # Setup git lfs if it is the first you have installed it
 git lfs install
 # extra installs if you are wanting to build unit tests
