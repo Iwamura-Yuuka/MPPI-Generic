@@ -37,7 +37,8 @@ set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 # More info for autodetection:
 # https://stackoverflow.com/questions/35485087/determining-which-gencode-compute-arch-values-i-need-for-nvcc-within-cmak
 if (NOT DEFINED MPPI_ARCH_FLAGS)
-  CUDA_SELECT_NVCC_ARCH_FLAGS(MPPI_ARCH_FLAGS ${CUDA_ARCH_LIST})
+  # CUDA_SELECT_NVCC_ARCH_FLAGS(MPPI_ARCH_FLAGS ${CUDA_ARCH_LIST})
+  CUDA_SELECT_NVCC_ARCH_FLAGS(MPPI_ARCH_FLAGS 8.6)
 
   if (MPPI_ARCH_FLAGS STREQUAL "")
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -maxrregcount=32 -arch=sm_35")
