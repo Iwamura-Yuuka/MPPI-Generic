@@ -103,14 +103,17 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
       for (i = 0; i < control_dim / 4; i++)
       {
         // clamp each component ≥ 0
-        // float4 clamped = mean_shared4[i];
-        // clamped.x = fmaxf(clamped.x, 0.0f);
-        // clamped.y = fmaxf(clamped.y, 0.0f);
-        // clamped.z = fmaxf(clamped.z, 0.0f);
-        // clamped.w = fmaxf(clamped.w, 0.0f);
-        // control_samples_shared4[i] = clamped;
+        float4 clamped = mean_shared4[i];
+        if(clamped.x < 0.0f && clamped.y < 0.0f)
+        {
+          clamped.x = 0.0f;
+          clamped.y = 0.0f;
+          clamped.z = 0.0f;
+          clamped.w = 0.0f;
+        }
+        control_samples_shared4[i] = clamped;
 
-        control_samples_shared4[i] = mean_shared4[i];
+        // control_samples_shared4[i] = mean_shared4[i];
       }
     }
     else if (valid_index && trajectory_index >= (1.0f - pure_noise_percentage) * num_rollouts)
@@ -118,14 +121,17 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
       for (i = 0; i < control_dim / 4; i++)
       {
         // clamp each component ≥ 0
-        // float4 clamped = std_dev_shared4[i] * control_samples_shared4[i];
-        // clamped.x = fmaxf(clamped.x, 0.0f);
-        // clamped.y = fmaxf(clamped.y, 0.0f);
-        // clamped.z = fmaxf(clamped.z, 0.0f);
-        // clamped.w = fmaxf(clamped.w, 0.0f);
-        // control_samples_shared4[i] = clamped;
+        float4 clamped = std_dev_shared4[i] * control_samples_shared4[i];
+        if(clamped.x < 0.0f && clamped.y < 0.0f)
+        {
+          clamped.x = 0.0f;
+          clamped.y = 0.0f;
+          clamped.z = 0.0f;
+          clamped.w = 0.0f;
+        }
+        control_samples_shared4[i] = clamped;
         
-        control_samples_shared4[i] = std_dev_shared4[i] * control_samples_shared4[i];
+        // control_samples_shared4[i] = std_dev_shared4[i] * control_samples_shared4[i];
       }
     }
     else if (valid_index)
@@ -133,14 +139,17 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
       for (i = 0; i < control_dim / 4; i++)
       {
         // clamp each component ≥ 0
-        // float4 clamped = mean_shared4[i] + std_dev_shared4[i] * control_samples_shared4[i];
-        // clamped.x = fmaxf(clamped.x, 0.0f);
-        // clamped.y = fmaxf(clamped.y, 0.0f);
-        // clamped.z = fmaxf(clamped.z, 0.0f);
-        // clamped.w = fmaxf(clamped.w, 0.0f);
-        // control_samples_shared4[i] = clamped;
+        float4 clamped = mean_shared4[i] + std_dev_shared4[i] * control_samples_shared4[i];
+        if(clamped.x < 0.0f && clamped.y < 0.0f)
+        {
+          clamped.x = 0.0f;
+          clamped.y = 0.0f;
+          clamped.z = 0.0f;
+          clamped.w = 0.0f;
+        }
+        control_samples_shared4[i] = clamped;
 
-        control_samples_shared4[i] = mean_shared4[i] + std_dev_shared4[i] * control_samples_shared4[i];
+        // control_samples_shared4[i] = mean_shared4[i] + std_dev_shared4[i] * control_samples_shared4[i];
       }
     }
 
@@ -198,6 +207,14 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
           clamped.x = 0.0f;
           clamped.y = 0.0f;
         }
+        // if(clamped.x < 0.0f)
+        // {
+        //   clamped.x = 0.0f;
+        // }
+        // if(clamped.y < 0.0f)
+        // {
+        //   clamped.y = 0.0f;
+        // }
         control_samples_shared2[i] = clamped;
 
         // control_samples_shared2[i] = mean_shared2[i];
@@ -214,6 +231,14 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
           clamped.x = 0.0f;
           clamped.y = 0.0f;
         }
+        // if(clamped.x < 0.0f)
+        // {
+        //   clamped.x = 0.0f;
+        // }
+        // if(clamped.y < 0.0f)
+        // {
+        //   clamped.y = 0.0f;
+        // }
         control_samples_shared2[i] = clamped;
 
         // control_samples_shared2[i] = std_dev_shared2[i] * control_samples_shared2[i];
@@ -230,6 +255,14 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
           clamped.x = 0.0f;
           clamped.y = 0.0f;
         }
+        // if(clamped.x < 0.0f)
+        // {
+        //   clamped.x = 0.0f;
+        // }
+        // if(clamped.y < 0.0f)
+        // {
+        //   clamped.y = 0.0f;
+        // }
         control_samples_shared2[i] = clamped;
 
         // control_samples_shared2[i] = mean_shared2[i] + std_dev_shared2[i] * control_samples_shared2[i];
@@ -299,10 +332,14 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
       for (i = 0; i < control_dim; i++)
       {
         // clamp each component ≥ 0
-        // float clamped = mean_shared[shared_mean_index + i];
-        // control_samples_shared[shared_noise_index + i] = fmaxf(clamped, 0.0f);
+        float clamped = mean_shared[shared_mean_index + i];
+        if(clamped < 0.0f)
+        {
+          clamped = 0.0f;
+        }
+        control_samples_shared[shared_noise_index + i] = clamped;
 
-        control_samples_shared[shared_noise_index + i] = mean_shared[shared_mean_index + i];
+        // control_samples_shared[shared_noise_index + i] = mean_shared[shared_mean_index + i];
       }
     }
     else if (valid_index && trajectory_index >= (1.0f - pure_noise_percentage) * num_rollouts)
@@ -310,11 +347,15 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
       for (i = 0; i < control_dim; i++)
       {
         // clamp each component ≥ 0
-        // float clamped = std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
-        // control_samples_shared[shared_noise_index + i] = fmaxf(clamped, 0.0f);
+        float clamped = std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
+        if(clamped < 0.0f)
+        {
+          clamped = 0.0f;
+        }
+        control_samples_shared[shared_noise_index + i] = clamped;
 
-        control_samples_shared[shared_noise_index + i] =
-            std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
+        // control_samples_shared[shared_noise_index + i] =
+        //     std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
       }
     }
     else if (valid_index)
@@ -322,13 +363,17 @@ __global__ void setGaussianControls(const float* __restrict__ mean_d, const floa
       for (i = 0; i < control_dim; i++)
       {
         // clamp each component ≥ 0
-        // float clamped = mean_shared[shared_mean_index + i] +
-        //                 std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
-        // control_samples_shared[shared_noise_index + i] = fmaxf(clamped, 0.0f);
+        float clamped = mean_shared[shared_mean_index + i] +
+                        std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
+        if(clamped < 0.0f)
+        {
+          clamped = 0.0f;
+        }
+        control_samples_shared[shared_noise_index + i] = clamped;
 
-        control_samples_shared[shared_noise_index + i] =
-            mean_shared[shared_mean_index + i] +
-            std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
+        // control_samples_shared[shared_noise_index + i] =
+        //     mean_shared[shared_mean_index + i] +
+        //     std_dev_shared[shared_std_dev_index + i] * control_samples_shared[shared_noise_index + i];
       }
     }
     __syncthreads();
